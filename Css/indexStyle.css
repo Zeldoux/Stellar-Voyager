@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+body .game-container, html .game-container {
+  position: relative;
+  border: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+}
+body #fullscreen-btn, html #fullscreen-btn {
+  width: 20%;
+}
+
+@media (max-width: 1024px) {
+  canvas {
+    width: 800px;
+    height: 600px;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1280px) {
+  canvas {
+    width: 1024px;
+    height: 768px;
+  }
+}
+@media (min-width: 1280px) {
+  canvas {
+    width: 1280px;
+    height: 720px;
+  }
+}/*# sourceMappingURL=indexStyle.css.map */
