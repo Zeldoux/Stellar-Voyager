@@ -1,9 +1,8 @@
 let imgLoader = new imageLoader(); // create a new img loader
 // old var /*let lstSprites = []; // sprite list*/
+let currentScene = "CHOICE";
+let sceneMenu = new MenuScene();
 let gameScene = new GameScene(); // create a new game scene
-
-GameReady = false;
-
 
 
 let keyboard = [];
@@ -13,6 +12,7 @@ function keyPush(t) {
         t.preventDefault();
         if (keyboard[t.code] == false || keyboard[t.code] == null ){
             gameScene.keypressed(t.code);
+            sceneMenu.keypressed(t.code);
         }
         keyboard[t.code] = true ;
     }
@@ -27,7 +27,13 @@ function keyRelief(t) {
 function startGame() {
     console.log("game start !");
     gameScene.load(imgLoader); // load img loaded from the imgLoader() into the gamescene class 
-    GameReady = true;
+    gameScene.GameReady = true;
+    sceneMenu.MenuReady = false;
+}
+function startMenu(){
+    sceneMenu.load(imgLoader);
+    sceneMenu.MenuReady = true;
+
 }
 
 /* load function set to be loaded one time at the begining of the init() function */
@@ -37,6 +43,16 @@ function load() {
     document.addEventListener("keyup", (t) => keyRelief(t), false);
     
     // bind spacebar event for shoot method
+    imgLoader.add("Img/Player/lifeBarSP.png");
+    imgLoader.add("Img/Booster/booster.png");
+    imgLoader.add("Img/Booster/booster1.png");
+    imgLoader.add("Img/Booster/booster2.png");
+    imgLoader.add("Img/tilemap/parralax.png");
+    imgLoader.add("Img/tilemap/parralax1.png");
+    imgLoader.add("Img/tilemap/parralax2.png");
+    imgLoader.add("Img/tilemap/parralax3.png");
+    imgLoader.add("Img/tilemap/backgroundlayer1.png");
+    imgLoader.add("Img/tilemap/backgroundlayer2.png")
     imgLoader.add("Img/Player/playercanonshootsprtsheet.png");
     imgLoader.add("Img/Enemy/ShotBig4.png");
     imgLoader.add("Img/Player/playercanonsprtsheet.png");
@@ -60,28 +76,35 @@ function load() {
     imgLoader.add("Img/Stars/Bstar12.png");
     imgLoader.add("Img/Stars/Bstar13.png");
     /* when all img are loaded in the loader execute callback of fucntion startGame */
-    imgLoader.start(startGame);
+    imgLoader.start(startMenu);
 }
 /* update function set to be used 60 time per seconde in the run() function */
 function update(dt) {
-    if (!GameReady) {
-        return;
+    if (sceneMenu.MenuReady) {
+        sceneMenu.keyboard = keyboard;
+        sceneMenu.update(dt);
+        
+    } else if (gameScene.GameReady) {
+        gameScene.keyboard = keyboard;
+        gameScene.update(dt);
     }
-    gameScene.keyboard = keyboard;
-    gameScene.update(dt);
     
 }
 /* draw function set to be used 60 time per seconde in the run() function */
 function draw(pCtx) {
-    if (!GameReady) {
+    if (!sceneMenu.MenuReady) {
+        // Handle loading screen or initialization
         let ratio = imgLoader.getLoadedRatio();
         pCtx.fillStyle = "rgb(255,255,255)";
-        pCtx.fillRect(1,1,600,100);
+        pCtx.fillRect(1, 1, 600, 100);
         pCtx.fillStyle = "rgb(0,255,0)";
-        pCtx.fillRect(1,1,600 * ratio, 100)
-        return;
+        pCtx.fillRect(1, 1, 600 * ratio, 100);
+    } else if (sceneMenu.MenuReady) {
+        sceneMenu.draw(pCtx);
     }
-    
-    gameScene.draw(pCtx);
+
+    if (gameScene.GameReady) {
+        gameScene.draw(pCtx);
+    }
     
 }

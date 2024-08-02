@@ -16,6 +16,9 @@ class Sprite {
 
         this.scaleX = 1; // set defualt scale of X 
         this.scaleY = 1; // set default scale of Y 
+
+        this.width = pSrc.width;
+        this.height = pSrc.height;
         
         /**create framenumber to retriev wich frame to display wich img (animations) */
         this.currentFrame = 0;
@@ -40,8 +43,8 @@ class Sprite {
         };
         console.log("constructor finished building new sprite :",this.img );
     }
-
-    addAnim(pName, pFrame, pSpeed, pLoop = true){
+    // method to add a new animation to the anim list of the sprite
+    addAnim(pName, pFrame, pSpeed, pLoop = true){// set up a "NAME", [10,11,12],0,2,true
         let anim = {
             name: pName,
             frames: pFrame, // example : [10,11,12]
@@ -49,22 +52,23 @@ class Sprite {
             loop: pLoop,
             end: false
         }
-        this.animations.push(anim);
+        this.animations.push(anim); // add this animations to the animations list 
         console.log(`Animation added: ${pName}, Frames: ${pFrame}, Speed: ${pSpeed}, Loop: ${pLoop}`);
 
     }
+    // method to start the animations 
     startAnim(pName){
         
-        if (this.currAnimations != null && this.currAnimations.name == pName ){
+        if (this.currAnimations != null && this.currAnimations.name == pName ){ // check if there is already an animation or if its the same as the already one started 
             return;
         }
         // Search for the animation by name and set it as the current animation
-        for (let i = 0; i < this.animations.length; i++) {
+        for (let i = 0; i < this.animations.length; i++) { // iterate trough all animations list 
             let animation = this.animations[i];
-            if (animation.name == pName) {
-                this.currAnimations = animation;
-                this.currFrameAnim = 0;
-                this.currentFrame = this.currAnimations.frames[this.currFrameAnim];
+            if (animation.name == pName) { // find the animations from the list that contain the pName 
+                this.currAnimations = animation; // set the current animations with this found animations
+                this.currFrameAnim = 0; // set the current frame of the animation to 0 (reset)
+                this.currentFrame = this.currAnimations.frames[this.currFrameAnim];// set the current frame to the first frame as set just before (0)
                 console.log(`Animation started: ${pName}, Current Frame: ${this.currentFrame}`);
                 break;
             }
@@ -77,6 +81,8 @@ class Sprite {
         this.tileSheet = true;
         this.tileSize.x = pSizeX;
         this.tileSize.y = pSizeY;
+        this.width = pSizeX;
+        this.height = pSizeY;
     }
 
     /* function to modify scale size of sprite */ 
@@ -84,23 +90,34 @@ class Sprite {
         this.scaleX = pX;
         this.scaleY = pY;
     }
+    /* method to check if a sprite (pSprite) collide with another */
+    collideWith(pSprite){
+        /* use of checkcollision function between the two psprite and (this) where (this) is the variable used for this function */
+        if (checkCollision(pSprite,this)) {
+            return true;// if colliding it should return true
+        } else {
+            return false;
+        }
+    }
 
-
+    // Update the sprite's animation state based on the delta time (dt)
     update(dt){
+        // Check if there's a current animation set
         if (this.currAnimations != null) {
-            this.frameTimer += dt;
-            if (this.frameTimer >= this.currAnimations.speed) {
-                this.frameTimer = 0;
-                this.currFrameAnim++;
-                if (this.currFrameAnim > this.currAnimations.frames.length - 1 ) {
-                    if (this.currAnimations.loop) {
-                        this.currFrameAnim = 0;
+            this.frameTimer += dt; // Increment the frame timer by the delta time
+            if (this.frameTimer >= this.currAnimations.speed) { // If the frame timer exceeds the current animation's speed
+                this.frameTimer = 0; // Reset the frame timer
+                this.currFrameAnim++; // Move to the next frame in the animation sequence
+                if (this.currFrameAnim > this.currAnimations.frames.length - 1 ) {  // If the current frame index exceeds the total frames in the animation(end) 
+                    if (this.currAnimations.loop) { // Check if the animation should loop
+                        this.currFrameAnim = 0; // Reset to the first frame if looping
                     }
-                    else {
-                        this.currFrameAnim = this.currAnimations.frames.length - 1;
-                        this.currAnimations.end = true;
+                    else { // Otherwise, set to the last frame and mark the animation as ended
+                        this.currFrameAnim = this.currAnimations.frames.length - 1; // set current frame animation to the sprite current animation frame length (last one)
+                        this.currAnimations.end = true; // set end bool value to true ;
                     }
                 }
+                // Update the current frame to the new frame in the animation sequenc
                 this.currentFrame = this.currAnimations.frames[this.currFrameAnim];
             }
 

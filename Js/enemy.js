@@ -1,15 +1,26 @@
 class Enemy{
-    constructor(pSprite){
+    constructor(pSprite,pCategory,pGameplayService){
         this.sprite = pSprite
         this.timer = 0;
         this.pendingDelay = 0;
         this.started = false;
         this.speed = 1;
+        this.gameplayService = pGameplayService;
+        this.fireTimer = rnd(3,8)
         console.log(this.sprite.imgPath);
+        this.sprite.category = pCategory
 
+    }
+    fire() {
+        if (this.fireTimer <= 0) {
+            this.gameplayService.bulletsManager.shoot(this.sprite.x, this.sprite.y , Math.random() * (2 * Math.PI ), 1,"ENEMY")
+            this.fireTimer = rnd(3,5)
+        }
     }
     update(dt){
         this.sprite.update(dt);
+        this.fireTimer -= dt;
+        
     }
     draw(pCtx){
         this.sprite.draw(pCtx);
@@ -17,28 +28,28 @@ class Enemy{
 }
 
 class EnemyWave{
-    constructor(pSprite,pNumber,pPendingDelay,pStartDistance,pX,pY){
+    constructor(pSprite,pNumber,pPendingDelay,pStartDistance,pX,pY,pCategory){
         this.enemyList =[];
         console.log("EnemyWave construction...")
         this.startDistance = pStartDistance;
         this.started = false;
-        this.enemyList =[];
         this.sprite = pSprite;
         this.number = pNumber;
         this.pendingDelay = pPendingDelay;
         this.x = pX;
         this.y = pY;
+        this.category = pCategory
         
     }
     addEnemy(pEnemy){
         this.enemyList.push(pEnemy);
-
     }
     update(dt){
         for (let i = this.enemyList.length - 1 ; i >= 0 ; i-- ) { // iterate trough all enemy of the wave
             let enemy = this.enemyList[i];
             if (enemy.started == false) {
                 enemy.timer += dt;
+                
                 if (enemy.timer >= enemy.pendingDelay){
                     console.log("enemy start at : ",enemy.timer)
                     enemy.started = true;
@@ -47,6 +58,7 @@ class EnemyWave{
             }
             if (enemy.started){
                 enemy.update(dt);
+                enemy.fire();
                 enemy.sprite.x -= enemy.speed;
                 if (enemy.sprite.x < 0 - enemy.sprite.tileSize.x) {
                     console.log("enemy out of bound supression...");
@@ -63,10 +75,10 @@ class EnemyWave{
     }
 }
 class WaveManager{
-    constructor(){
+    constructor(pGameplayService){
         console.log("construction of the WaveManager....")
         this.waveList = [];
-        this.currentWave = null;
+        this.gameplayService = pGameplayService;
          
     }
     addWave(pWave){
@@ -84,9 +96,9 @@ class WaveManager{
         console.log("wave started at ", pWave.startDistance);
         pWave.started = true;
         if (this.currentWave != null) {
-            this.stopWave(pWave);
+        
         }
-        this.currentWave = pWave;
+        
 
         for (let i = 0; i < pWave.number; i++){
             console.log("create enemy : " , i);
@@ -95,7 +107,7 @@ class WaveManager{
             Object.assign(mySprite, pWave.sprite);
             console.log("enemy updated sprite content : ", mySprite);
 
-            let enemy = new Enemy(mySprite);
+            let enemy = new Enemy(mySprite,pWave.category,this.gameplayService);
             console.log(enemy);
             enemy.sprite.x = pWave.x;
             enemy.sprite.y = pWave.y;
@@ -110,16 +122,17 @@ class WaveManager{
         this.waveList.forEach(wave => {
             if (pDistance >= wave.startDistance && !wave.started ){
                 this.startWave(wave);
+
+            }
+            if (wave.started) {
+                wave.update(dt);
             }
         });
-        if (this.currentWave != null) {
-            this.currentWave.update(dt);
-        }
     }
     draw(pCtx){
-        if (this.currentWave != null) {
-            this.currentWave.draw(pCtx);
-        }
+        this.waveList.forEach(wave => {
+            wave.draw(pCtx);
+        });
     }
 }
 

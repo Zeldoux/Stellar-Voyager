@@ -12,6 +12,11 @@ let fps = 0;
 
 let lastUpdate = 0 //(old version) Date.now(); // get actual timestamp in ms 
 
+function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+
 
 
 /* run function that run 60 time per sec update / draw function */

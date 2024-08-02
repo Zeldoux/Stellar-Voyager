@@ -21,8 +21,6 @@ body, html {
         display:flex;
         flex-direction: column;
     }
-    canvas {
-    }
     #fullscreen-btn {
         width:20%;
     }
@@ -38,13 +36,13 @@ body, html {
 @media (min-width: 1024px) and (max-width: 1280px) {
     canvas {
         width: 1024px;
-        height: 768px;
+        height: 800px;
     }
 }
 
 @media (min-width: 1280px) {
     canvas {
         width: 1280px;
-        height: 720px;
+        height: 800px;
     }
 }

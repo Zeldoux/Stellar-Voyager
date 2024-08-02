@@ -32,12 +32,12 @@ body #fullscreen-btn, html #fullscreen-btn {
 @media (min-width: 1024px) and (max-width: 1280px) {
   canvas {
     width: 1024px;
-    height: 768px;
+    height: 800px;
   }
 }
 @media (min-width: 1280px) {
   canvas {
     width: 1280px;
-    height: 720px;
+    height: 800px;
   }
 }/*# sourceMappingURL=indexStyle.css.map */

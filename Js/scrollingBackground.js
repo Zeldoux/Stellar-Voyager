@@ -1,7 +1,8 @@
 class ScrollingBackground {
-    constructor(pImg) {
+    constructor(pImg,pY) {
         this.speed = 0;
         this.x = 0;
+        this.y = pY;
         this.image = pImg
         this.distance = pImg.width;
     }
@@ -18,7 +19,7 @@ class ScrollingBackground {
 
     // draw scrolling background
     draw(pCtx){
-        pCtx.drawImage(this.image,this.x,0);
-        pCtx.drawImage(this.image, this.x + this.image.width, 0);
+        pCtx.drawImage(this.image,this.x,this.y);
+        pCtx.drawImage(this.image, this.x + this.image.width, this.y);
     }
 }

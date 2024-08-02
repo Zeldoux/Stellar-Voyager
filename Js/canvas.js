@@ -1,6 +1,6 @@
 
 
-/* Gestion du plein écran */
+/* BIG screen function */
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         let canvas = document.getElementById("canvas");
