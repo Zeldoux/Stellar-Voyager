@@ -1,48 +1,31 @@
-let imgLoader = new imageLoader(); // create a new img loader
-// old var /*let lstSprites = []; // sprite list*/
-let currentScene = "CHOICE";
-let sceneMenu = new MenuScene();
-let gameScene = new GameScene(); // create a new game scene
+let imgLoader = new imageLoader(); // Create a new image loader
+let soundManager = new SoundManager();
+
+inputManager = new InputManager(); // Initialize InputManager
+let sceneManager = new SceneManager(); // Create a new scene manager
+let menuScene = new MenuScene(); // Create menu scene
+let gameScene = new GameScene(); // Create a new game scene
+let choicesScene = new ChoiceScene(); // Create choice scene
 
 
-let keyboard = [];
-    /* method to handle when a key is pressed (true) */
-function keyPush(t) {
-        /*prevent default behavior of pressing a key */
-        t.preventDefault();
-        if (keyboard[t.code] == false || keyboard[t.code] == null ){
-            gameScene.keypressed(t.code);
-            sceneMenu.keypressed(t.code);
-        }
-        keyboard[t.code] = true ;
-    }
-/* method to handle when key is relief (false) */
-function keyRelief(t) {
-        /* prevent default behavior of relief pressed key */
-        t.preventDefault();
-        keyboard[t.code] = false;
-    }
+sceneManager.addScene("MENU",menuScene);
+sceneManager.addScene("CHOICE",choicesScene);
 
-/* function that start the game after the img loader has finish loading all img */
-function startGame() {
-    console.log("game start !");
-    gameScene.load(imgLoader); // load img loaded from the imgLoader() into the gamescene class 
-    gameScene.GameReady = true;
-    sceneMenu.MenuReady = false;
-}
-function startMenu(){
-    sceneMenu.load(imgLoader);
-    sceneMenu.MenuReady = true;
-
-}
+let imgloaded = false;
 
 /* load function set to be loaded one time at the begining of the init() function */
 function load() {
-    // Bind key event handlers
-    document.addEventListener("keydown", (t) => keyPush(t), false);
-    document.addEventListener("keyup", (t) => keyRelief(t), false);
+    // load all music
+    soundManager.addSound("Sounds/explosion.wav");
+    soundManager.addSound("Sounds/laserShoot.wav");
+    soundManager.addSound("Sounds/inspiring-cinematic-ambient-116199.mp3");
+    soundManager.addSound("Sounds/blipSelect.wav");
+    soundManager.addSound("Sounds/RaphMusic.mp3");
     
-    // bind spacebar event for shoot method
+    // Add images to the loader
+    imgLoader.add("Img/Player/playerShipV2.png");
+    imgLoader.add("Img/Player/playerShipV3.png");
+    imgLoader.add("Img/Player/playerspaceshipD.png");
     imgLoader.add("Img/Player/lifeBarSP.png");
     imgLoader.add("Img/Booster/booster.png");
     imgLoader.add("Img/Booster/booster1.png");
@@ -75,36 +58,61 @@ function load() {
     imgLoader.add("Img/Stars/Bstar11.png");
     imgLoader.add("Img/Stars/Bstar12.png");
     imgLoader.add("Img/Stars/Bstar13.png");
-    /* when all img are loaded in the loader execute callback of fucntion startGame */
-    imgLoader.start(startMenu);
+    // Start loading images and sounds
+    imgLoader.start(() => {
+        soundManager.start(() => {
+            sceneManager.switchToScene("MENU", imgLoader);
+        });
+    });
+
 }
-/* update function set to be used 60 time per seconde in the run() function */
+// update function set to be used 60 time per seconde in the run() function */
 function update(dt) {
-    if (sceneMenu.MenuReady) {
-        sceneMenu.keyboard = keyboard;
-        sceneMenu.update(dt);
-        
-    } else if (gameScene.GameReady) {
-        gameScene.keyboard = keyboard;
-        gameScene.update(dt);
+    if (!sceneManager.currentScene) {
+        return;
+    } else {
+        sceneManager.update(dt);
     }
     
 }
-/* draw function set to be used 60 time per seconde in the run() function */
+// draw function set to be used 60 time per seconde in the run() function */
 function draw(pCtx) {
-    if (!sceneMenu.MenuReady) {
+    if (!sceneManager.currentScene) {
         // Handle loading screen or initialization
         let ratio = imgLoader.getLoadedRatio();
         pCtx.fillStyle = "rgb(255,255,255)";
         pCtx.fillRect(1, 1, 600, 100);
         pCtx.fillStyle = "rgb(0,255,0)";
         pCtx.fillRect(1, 1, 600 * ratio, 100);
-    } else if (sceneMenu.MenuReady) {
-        sceneMenu.draw(pCtx);
+    } else {
+    sceneManager.draw(pCtx);
     }
-
-    if (gameScene.GameReady) {
-        gameScene.draw(pCtx);
-    }
-    
 }
+
+function startGame() {
+    let newGameScene = new GameScene(); // Create a new game scene instance
+    if (soundManager && sceneManager.currentScene.sndmusic) {
+        soundManager.stopSound(sceneManager.currentScene.sndmusic);
+    }
+    sceneManager.addScene("GAME", newGameScene); // Add it to the scene manager
+    sceneManager.switchToScene("GAME", imgLoader); // Switch to the new game scene
+}
+
+
+function selectShipScene() {
+    sceneManager.switchToScene("CHOICE", imgLoader);
+}
+
+function loadSaveGame(){
+    console.log("open save window ");
+}
+function optionWindow(){
+    console.log("option menu opened");
+}
+function ExitGame(){
+    console.log("exit the game")
+}
+function backMenu(){
+    sceneManager.switchToScene("MENU",imgLoader);
+}
+

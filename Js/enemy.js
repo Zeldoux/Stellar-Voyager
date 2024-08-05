@@ -7,7 +7,6 @@ class Enemy{
         this.speed = 1;
         this.gameplayService = pGameplayService;
         this.fireTimer = rnd(3,8)
-        console.log(this.sprite.imgPath);
         this.sprite.category = pCategory
 
     }

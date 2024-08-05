@@ -1,28 +1,32 @@
 "use strict";
 
-class MenuScene {
+class MenuScene extends Scene {
     constructor(){
+        super(); // call the base class constructor (Scene)
         this.imgloader = null;
+
         this.particleEmitterManager = new ParticleEmitterManager();
         this.gameplayService = new GameplayService();
         this.MenuReady = false;
+        this.ready = false;
         this.keyboard = null;
-        this.sndmusic = new sound("Sounds/inspiring-cinematic-ambient-116199.mp3");
-        this.sndmusic.sound.volume = 0.5;
-        this.sndmusic.sound.loop = true;
+        console.log(soundManager);
+        this.sndmusic = soundManager.getSound("Sounds/inspiring-cinematic-ambient-116199.mp3");
+        console.log(this.sndmusic);
+        this.sndMenuSelect = soundManager.getSound("Sounds/blipSelect.wav");
         // Define the buttons
         this.buttons = [
-            { label: 'Start Game', x: 300, y: 200, width: 200, height: 50, action: startGame },
-            { label: 'Load Game', x: 300, y: 260, width: 200, height: 50, action: startGame  },
-            { label: 'Options', x: 300, y: 320, width: 200, height: 50, action: startGame },
-            { label: 'Exit', x: 300, y: 380, width: 200, height: 50, action: startGame }
+            { label: 'Start Game', x: 535, y: 200, width: 200, height: 50, action: selectShipScene },
+            { label: 'Load Game', x: 535, y: 260, width: 200, height: 50, action: loadSaveGame  },
+            { label: 'Options', x: 535, y: 320, width: 200, height: 50, action: optionWindow },
+            { label: 'Exit', x: 535, y: 380, width: 200, height: 50, action: ExitGame }
         ];
         this.selectedButtonIndex = 0;
     }
     load (pImageLoader) {
-        this.imgloader = pImageLoader; 
-        this.sndmusic.play();
-
+        this.imgloader = pImageLoader;
+        console.log(this.sndmusic);
+        soundManager.playSound(this.sndmusic);
     }
     update(dt){
         for (let i = 0; i < 10; i++) {
@@ -35,17 +39,23 @@ class MenuScene {
         }
         this.particleEmitterManager.update(dt);
         if (this.keyboard["Enter"]) {
+            soundManager.playSound(this.sndMenuSelect);
             this.buttons[this.selectedButtonIndex].action();
+            this.keyboard["Enter"] = false;
+            
+            
             
         }
         if (this.keyboard["ArrowUp"]){
             this.selectedButtonIndex = (this.selectedButtonIndex > 0) ? this.selectedButtonIndex - 1 : this.buttons.length - 1 ;
+            soundManager.playSound(this.sndMenuSelect);
+            this.keyboard["ArrowUp"] = false;
         }
         if (this.keyboard["ArrowDown"]){
+            soundManager.playSound(this.sndMenuSelect);
             this.selectedButtonIndex = (this.selectedButtonIndex < this.buttons.length - 1) ? this.selectedButtonIndex + 1 : 0;
-        }
-        if (!this.MenuReady){
-            this.sndmusic.stop()
+
+            this.keyboard["ArrowDown"] = false;
         }
     }
     draw(pCtx){
@@ -59,7 +69,7 @@ class MenuScene {
         
         // Draw the buttons
         this.buttons.forEach((button, index) => {
-            pCtx.fillStyle = index === this.selectedButtonIndex ? 'black' : 'grey';
+            pCtx.fillStyle = index === this.selectedButtonIndex ? 'darkblue' : 'grey';
             pCtx.fillRect(button.x, button.y, button.width, button.height);
             
             pCtx.fillStyle = "white";
@@ -70,6 +80,9 @@ class MenuScene {
         });
     }
     keypressed(pKey){
+        if (this.keyboard[pKey]) { // Check if the key is already pressed
+            this.keyboard[pKey] = true;
+        }
         console.log(pKey);
     }
     

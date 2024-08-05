@@ -38,8 +38,9 @@ class GameplayService {
 }
 
 // gameScene class to handle most of the game logic (player,enemyect...)
-class GameScene {
+class GameScene extends Scene{
     constructor() {
+        super() 
         this.imageLoader = null; // set imgloader 
         this.imgBackground = []; // set imgbackground 
         this.background = [];
@@ -49,6 +50,13 @@ class GameScene {
         this.particleEmitterManager = new ParticleEmitterManager();
         this.lootManager = new LootManager();
         this.GameReady = false;
+        this.paused = false; // Add paused property
+        this.loose = false;
+        this.LooseButtons = [
+            { label: 'Restart Game', x: 535, y: 200, width: 200, height: 50 , action: startGame},
+            { label: 'Exit to Menu', x: 535, y: 380, width: 200, height: 50 , action: backMenu}
+        ];
+        this.selectedButtonIndex = 0;
 
         // set gameplayservice content 
         this.gameplayService.setCanvas(canvas) // get canvas 
@@ -64,12 +72,11 @@ class GameScene {
     /* method to load the scene */
     load(pImageLoader){
         // set sound variable
-        this.sndExplosion = new sound("Sounds/explosion.wav");
-        this.sndShoot = new sound("Sounds/laserShoot.wav");
-        this.sndmusic = new sound("Sounds/RaphMusic.mp3");
-        this.sndmusic.sound.volume = 0.5;
-        this.sndmusic.sound.loop = true;
-        this.sndmusic.play();
+        this.gameMusic = soundManager.getSound("Sounds/RaphMusic.mp3");
+        this.sndShoot = soundManager.getSound("Sounds/laserShoot.wav");
+        this.sndExplosion = soundManager.getSound("Sounds/explosion.wav");
+        this.ready = true;
+        soundManager.playSound(this.gameMusic,false);
         
         
         // when imgloader has loaded all img we add it to the scene 
@@ -124,9 +131,57 @@ class GameScene {
         }
         
 
+    }
+    looseGame(){
+        if (this.player.life <= 0){
+            this.loose = true;
+            if (this.loose) {
+                if (this.keyboard["Enter"]) {
+                this.LooseButtons[this.selectedButtonIndex].action();
+                this.keyboard["Enter"] = false;
+                
+                
+                
+            }
+            if (this.keyboard["ArrowUp"]){
+                this.selectedButtonIndex = (this.selectedButtonIndex > 0) ? this.selectedButtonIndex - 1 : this.LooseButtons.length - 1 ;
+    
+                this.keyboard["ArrowUp"] = false;
+            }
+            if (this.keyboard["ArrowDown"]){
+    
+                this.selectedButtonIndex = (this.selectedButtonIndex < this.LooseButtons.length - 1) ? this.selectedButtonIndex + 1 : 0;
+    
+                this.keyboard["ArrowDown"] = false;
+            }
+                
+            }
+            
+
         }
+        
+    }
     /* method to update the scene */
-    update(dt){
+
+    update(dt){  
+        this.looseGame();
+        if (this.loose){
+            return;
+        }
+
+        // handle key bind and event 
+        if ((this.keyboard["Escape"])) {
+            this.paused = !this.paused;
+            
+            this.keyboard["Escape"] = false;
+            
+        }
+        
+            
+        if (this.paused){
+            return;
+        }  
+
         this.background.forEach(background => {
             background.update(dt)
         });
@@ -134,9 +189,6 @@ class GameScene {
         this.waveManager.update(dt,this.background[0].distance); // update waveManager with background distance
         this.bulletsManager.update(dt); // update bulletsManager 
         this.handleCollision(dt);
-
-    
-        // handle key bind and event 
         if ((this.keyboard["KeyW"] || this.keyboard["ArrowUp"]) && this.player.y >= 0 ) {
             this.player.y -= 1;
         }
@@ -162,8 +214,7 @@ class GameScene {
                 let position = this.player.getShootPos(22); // get the shooting position from the player position with getShootPos()
                 this.bulletsManager.shoot(position.x,position.y,0,2,"PLAYER") // start shoot() function from bulletsManager
                 this.shotTimer = this.shotSpeed; // reset shottimer with shotspeed 
-                this.sndShoot.stop();
-                this.sndShoot.play();
+                soundManager.playSound(this.sndShoot,false);
             }
         } else {
             // otherwise hide the canon 
@@ -198,18 +249,41 @@ class GameScene {
         this.lootManager.draw(pCtx);
         this.player.draw(pCtx);
         this.particleEmitterManager.draw(pCtx);
+        if (this.paused) {
+            pCtx.fillStyle = "rgba(0, 0, 0, 0.7)"; // Semi-transparent background
+            pCtx.fillRect(0, 0, canvas.width, canvas.height); // Cover entire screen
+            pCtx.fillStyle = "white";
+            pCtx.font = "30px Arial";
+            pCtx.textAlign = "center";
+            pCtx.fillText("Game Paused", canvas.width / 2, canvas.height / 2 - 20);
+            pCtx.font = "20px Arial";
+            pCtx.fillText("Press 'Escape' to Resume", canvas.width / 2, canvas.height / 2 + 20);
         
+        }
+        if (this.loose) {
+            this.LooseButtons.forEach((button, index) => {
+                pCtx.fillStyle = index === this.selectedButtonIndex ? 'darkblue' : 'grey';
+                pCtx.fillRect(button.x, button.y, button.width, button.height);
+                
+                pCtx.fillStyle = "white";
+                pCtx.font = "20px 'Press Start 2P'"; // Set font size and style for the buttons
+                pCtx.textAlign = "center";
+                pCtx.textBaseline = "middle";
+                pCtx.fillText(button.label, button.x + button.width / 2, button.y + button.height / 2);
+            });
+        }
         
          // restore the previous pCtx(context) state from the save
         
     }
+    
     // get the distance of the actual background 
     getDistance() {
         return this.background.distance;
     }
     // function to handle key pressed 
     keypressed(pKey){
-        console.log("toutch press : " , pKey);
+        
     }
     // method to hadle collision in the scene 
     handleCollision(dt){
@@ -245,9 +319,7 @@ class GameScene {
                             } 
                             this.particleEmitterManager.addEmitter(newExplosion);
                             // sound effect
-                            
-                            this.sndExplosion.stop();
-                            this.sndExplosion.play();
+                            soundManager.playSound(this.sndExplosion,false);
                         }
                     }
                 });
