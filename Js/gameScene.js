@@ -72,11 +72,8 @@ class GameScene extends Scene{
     /* method to load the scene */
     load(pImageLoader){
         // set sound variable
-        this.gameMusic = soundManager.getSound("Sounds/RaphMusic.mp3");
-        this.sndShoot = soundManager.getSound("Sounds/laserShoot.wav");
-        this.sndExplosion = soundManager.getSound("Sounds/explosion.wav");
         this.ready = true;
-        soundManager.playSound(this.gameMusic,false);
+        soundManager.playSound("Sounds/RaphMusic.mp3");
         
         
         // when imgloader has loaded all img we add it to the scene 
@@ -214,7 +211,7 @@ class GameScene extends Scene{
                 let position = this.player.getShootPos(22); // get the shooting position from the player position with getShootPos()
                 this.bulletsManager.shoot(position.x,position.y,0,2,"PLAYER") // start shoot() function from bulletsManager
                 this.shotTimer = this.shotSpeed; // reset shottimer with shotspeed 
-                soundManager.playSound(this.sndShoot,false);
+                soundManager.playSound("Sounds/laserShoot.wav");
             }
         } else {
             // otherwise hide the canon 
@@ -319,7 +316,7 @@ class GameScene extends Scene{
                             } 
                             this.particleEmitterManager.addEmitter(newExplosion);
                             // sound effect
-                            soundManager.playSound(this.sndExplosion,false);
+                            soundManager.playSound("Sounds/explosion.wav");
                         }
                     }
                 });

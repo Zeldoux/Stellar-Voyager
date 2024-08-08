@@ -91,9 +91,6 @@ function draw(pCtx) {
 
 function startGame() {
     let newGameScene = new GameScene(); // Create a new game scene instance
-    if (soundManager && sceneManager.currentScene.sndmusic) {
-        soundManager.stopSound(sceneManager.currentScene.sndmusic);
-    }
     sceneManager.addScene("GAME", newGameScene); // Add it to the scene manager
     sceneManager.switchToScene("GAME", imgLoader); // Switch to the new game scene
 }

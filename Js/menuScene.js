@@ -10,10 +10,6 @@ class MenuScene extends Scene {
         this.MenuReady = false;
         this.ready = false;
         this.keyboard = null;
-        console.log(soundManager);
-        this.sndmusic = soundManager.getSound("Sounds/inspiring-cinematic-ambient-116199.mp3");
-        console.log(this.sndmusic);
-        this.sndMenuSelect = soundManager.getSound("Sounds/blipSelect.wav");
         // Define the buttons
         this.buttons = [
             { label: 'Start Game', x: 535, y: 200, width: 200, height: 50, action: selectShipScene },
@@ -25,8 +21,7 @@ class MenuScene extends Scene {
     }
     load (pImageLoader) {
         this.imgloader = pImageLoader;
-        console.log(this.sndmusic);
-        soundManager.playSound(this.sndmusic);
+        soundManager.playSound("Sounds/inspiring-cinematic-ambient-116199.mp3");
     }
     update(dt){
         for (let i = 0; i < 10; i++) {
@@ -39,7 +34,7 @@ class MenuScene extends Scene {
         }
         this.particleEmitterManager.update(dt);
         if (this.keyboard["Enter"]) {
-            soundManager.playSound(this.sndMenuSelect);
+            soundManager.playSound("Sounds/blipSelect.wav");
             this.buttons[this.selectedButtonIndex].action();
             this.keyboard["Enter"] = false;
             
@@ -48,11 +43,11 @@ class MenuScene extends Scene {
         }
         if (this.keyboard["ArrowUp"]){
             this.selectedButtonIndex = (this.selectedButtonIndex > 0) ? this.selectedButtonIndex - 1 : this.buttons.length - 1 ;
-            soundManager.playSound(this.sndMenuSelect);
+            soundManager.playSound("Sounds/blipSelect.wav");
             this.keyboard["ArrowUp"] = false;
         }
         if (this.keyboard["ArrowDown"]){
-            soundManager.playSound(this.sndMenuSelect);
+            soundManager.playSound("Sounds/blipSelect.wav");
             this.selectedButtonIndex = (this.selectedButtonIndex < this.buttons.length - 1) ? this.selectedButtonIndex + 1 : 0;
 
             this.keyboard["ArrowDown"] = false;

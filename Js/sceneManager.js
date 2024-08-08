@@ -27,6 +27,7 @@ class SceneManager{
             if (this.currentScene) {
                 this.currentScene.ready = false;
             }
+            soundManager.stopAllSound()
             this.currentScene = this.scenes[name];
             this.currentScene.load(imgLoader);
             this.currentScene.ready = true;

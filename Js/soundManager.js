@@ -28,7 +28,7 @@ class Sound {
 class SoundManager{
     constructor(){
         this.lstPaths = [];
-        this.lstSounds= [];
+        this.lstSounds= {};
         this.callBack = null;
         this.loadedSoundCount = 0;
     }
@@ -50,17 +50,12 @@ class SoundManager{
         return this.loadedSoundCount / this.getTotalSounds();
     }
 
-    start(pCallBack) {
-        this.callBack = pCallBack;
-        this.loadedSoundCount = 0; // Make sure to reset this here
+    start(pcallBack) {
+        this.callBack = pcallBack;
         this.lstPaths.forEach(path => {
             let music = new Sound(path);
-                console.log("Creating sound for path:", path);
-    console.log("Current lstSounds state:", this.lstSounds);
-            console.log(this.lstPaths);
-            music.sound.oncanplaythrough = () => this.soundLoaded(path);
-            this.lstSounds[path] = music;
-            console.log("oncanplaythrough listener set for:", path);
+            music.sound.oncanplaythrough = this.soundLoaded.bind(this);
+            this.lstSounds[path] = music;  // Ensure each path is correctly mapped to its Sound object
         });
     }
 
@@ -73,11 +68,12 @@ class SoundManager{
         }
     }
     getSound(pPath) {
-        console.log("sound returned from getsound :" ,this.lstSounds)
+        console.log("Requested path:", pPath); // To see what path is being requested
+        console.log("Available sounds:", this.lstSounds); // To see what's stored in lstSounds
         return this.lstSounds[pPath];
     }
     playSound(pPath){
-        let sound = this.lstSounds[pPath];
+        let sound = this.getSound(pPath);
         if (sound) {
             sound.play();
             console.log("Music started:", pPath);
@@ -86,7 +82,7 @@ class SoundManager{
         }
     }
     stopSound(pPath){
-        let sound = this.lstSounds[pPath];
+        let sound = this.getSound(pPath);
         if (sound) {
             sound.stop();
         } else {
@@ -94,7 +90,8 @@ class SoundManager{
         }
     }
     stopAllSound(){
-        for (let sound in this.lstPaths){
+        
+        for (let sound in this.lstSounds){
             this.stopSound(sound);
         }
     }
